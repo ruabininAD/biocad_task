@@ -18,25 +18,25 @@ func FilesProcessing(unProcessing chan string, wg *sync.WaitGroup, db dbAbstract
 	defer wg.Done()
 
 	for filePath := range unProcessing {
+		fmt.Println(filePath)
+		//newFilePath, _ := processFileName(filePath)
 
-		newFilePath, _ := processFileName(filePath)
-
-		messages, err := parseFile(newFilePath)
+		messages, err := parseFile(filePath)
 		if err != nil {
-			unProcessFileName(filePath)
+			unInProcessFileName(filePath)
 		}
-		//fixme
+		//fixme тут надо справить. если что-то падает, то файл отмечается как выполненный
 
-		//fmt.Println(messages)
 		err = db.AddFile(messages)
 		if err != nil {
-			unProcessFileName(filePath)
+			unInProcessFileName(filePath)
 		}
+		inPtoPedFileName(filePath)
 
 	}
 }
 
-func parseFile(filePath string) ([]message.Message, error) {
+func parseFile(filePath string) (messages []message.Message, err error) {
 	var level, bit, invertBit int
 
 	file, err := os.Open(filePath)
@@ -47,7 +47,7 @@ func parseFile(filePath string) ([]message.Message, error) {
 
 	// Создаем ридер для файла
 	reader := csv.NewReader(file)
-	reader.Comma = '\t' // Устанавливаем символ-разделитель как табуляцию
+	reader.Comma = '\t' //  символ-разделитель табуляция
 
 	// Читаем содержимое файла
 	lines, err := reader.ReadAll()
@@ -55,17 +55,8 @@ func parseFile(filePath string) ([]message.Message, error) {
 		fmt.Println("Ошибка при чтении файла:", err)
 	}
 
-	// Создаем слайс структур для хранения данных
-	var messages []message.Message
-
-	// Проходимся по строкам и заполняем структуру данных
 	for numberLine, line := range lines {
 		if numberLine == 0 {
-			continue
-		}
-
-		// Пропускаем заголовок, если он есть
-		if strings.HasPrefix(line[0], "ID") {
 			continue
 		}
 
@@ -131,9 +122,10 @@ func transformDataType(_level, _bit, _invertBit string) (level, bit, invertBit i
 	return level, bit, invertBit, err
 }
 
-func processFileName(filePath string) (newPath string, err error) {
+func inPtoPedFileName(filePath string) (newPath string, err error) {
 	directory, fileName := filepath.Split(filePath)
-	newFilename := fmt.Sprintf("processed_%s", fileName)
+	originalFilename := strings.TrimPrefix(fileName, "in_procss_")
+	newFilename := fmt.Sprintf("processed_%s", originalFilename)
 	newPath = filepath.Join(directory, newFilename)
 
 	err = os.Rename(filePath, newPath)
@@ -144,9 +136,9 @@ func processFileName(filePath string) (newPath string, err error) {
 	return newPath, nil
 }
 
-func unProcessFileName(filePath string) (newFilename string, err error) {
+func unInProcessFileName(filePath string) (newFilename string, err error) {
 	directory, fileName := filepath.Split(filePath)
-	originalFilename := strings.TrimPrefix(fileName, "processed_")
+	originalFilename := strings.TrimPrefix(fileName, "in_procss_")
 	newPath := filepath.Join(directory, originalFilename)
 
 	err = os.Rename(filePath, newPath)

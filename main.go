@@ -18,7 +18,7 @@ func main() {
 	unProcessed := make(chan string, 5)
 
 	flags := parseFlags()
-	config.ConfigInit(flags["config"])
+	config.Init(flags["config"])
 
 	db = dbInit(viper.GetString("host"), viper.GetString("port"), viper.GetString("DBImplement"))
 

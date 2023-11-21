@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -32,16 +33,33 @@ func checkUnprocessedFiles(directory string, unprocessed chan string) {
 	}
 
 	for _, file := range files {
-		if !file.IsDir() && !isFileProcessed(file.Name()) && isTSVFile(file.Name()) {
-			unprocessed <- viper.GetString("path") + "/" + file.Name()
+		if !file.IsDir() && !isFileInProcessing(file.Name()) && !isFileProcessed(file.Name()) && isTSVFile(file.Name()) {
+			newPath, _ := inProcessFileName(viper.GetString("path") + "/" + file.Name())
+			unprocessed <- newPath
 		}
 	}
+}
+
+func inProcessFileName(filePath string) (newPath string, err error) {
+	directory, fileName := filepath.Split(filePath)
+	newFilename := fmt.Sprintf("in_procss_%s", fileName)
+	newPath = filepath.Join(directory, newFilename)
+
+	err = os.Rename(filePath, newPath)
+	if err != nil {
+		return newPath, err
+	}
+
+	return newPath, nil
+}
+
+func isFileInProcessing(filename string) bool {
+	return len(filename) >= 10 && filename[:10] == "in_procss_"
 }
 
 func isFileProcessed(filename string) bool {
 	return len(filename) >= 10 && filename[:10] == "processed_"
 }
-
 func isTSVFile(filename string) bool {
 	return strings.HasSuffix(filename, ".tsv")
 }
