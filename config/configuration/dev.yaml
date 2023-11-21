@@ -3,9 +3,12 @@ DBLogin: 123
 host: "mongodb://localhost"
 port: ":27017"
 path: "C:/Users/ryabi/Downloads/biocad_file"
-frequency_of_dir_checks: 5 #sec fixme ____
-
+destination_path: "C:/Users/ryabi/Downloads/biocad_dest"
+frequency_of_dir_checks: 5 #sec
+web_server_port: ":8000"
 DBImplement: "mongodb"
 database: "dev"
 collection: "trainers"
 log: "log"
+
+pageSize: 10

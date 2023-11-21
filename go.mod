@@ -3,9 +3,15 @@ module biocadGo
 go 1.20
 
 require (
+	github.com/SebastiaanKlippert/go-wkhtmltopdf v1.9.2 // indirect
+	github.com/c-seeger/Golang-HTML-TO-PDF-Converter v0.0.0-20201126122206-bf4ddaefb6d3 // indirect
+	github.com/dondakeshimo/godocx v0.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/fumiama/go-docx v0.0.0-20231116125324-b3e1a27db995 // indirect
+	github.com/fumiama/imgsz v0.0.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/jung-kurt/gofpdf v1.16.2 // indirect
 	github.com/klauspost/compress v1.17.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

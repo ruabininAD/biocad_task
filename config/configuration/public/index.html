@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{.Title}}</title>
+    <style>
+        table, tr, th,td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            border-style: dotted;
+        }
+
+        .center{
+            display: flex;
+            justify-content: center;
+
+        }
+
+    </style>
+    <script>
+        function incrementPage() {
+            var pageField = document.getElementById('page');
+            var currentPage = parseInt(pageField.value);
+            pageField.value = currentPage + 1;
+            document.getElementById('paginationForm').submit();
+        }
+
+
+        function updateHiddenField() {
+            var searchValue = document.getElementById('search').value;
+            document.getElementById('hiddenQuery').value = searchValue;
+        }
+
+
+    </script>
+</head>
+
+<body>
+<div>
+    <form action="/index" method="post" class="center" >
+        <label for="search">Search:</label>
+        <input type="text" id="search" name="query">
+        <input type="hidden" name="page" id="page" value="1">
+        <input type="submit" value="Search">
+    </form>
+</div>
+
+
+
+
+{{if .Mes}}
+
+Всего {{ .Total}} записей. Страница {{ .PageN}}
+<table>
+    <thead>
+    <tr>
+        <th>Mqtt</th>
+        <th>Invent</th>
+        <th>UnitGUID</th>
+        <th>MsgID</th>
+        <th>Text</th>
+        <th>Context</th>
+        <th>Class</th>
+        <th>Level</th>
+        <th>Area</th>
+        <th>Addr</th>
+        <th>Block</th>
+        <th>Type</th>
+        <th>Bit</th>
+        <th>InvertBit</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{range .Mes}}
+    <tr>
+        <td>{{.Mqtt}}</td>
+        <td>{{.Invent}}</td>
+        <td>{{.UnitGUID}}</td>
+        <td>{{.MsgID}}</td>
+        <td>{{.Text}}</td>
+        <td>{{.Context}}</td>
+        <td>{{.Class}}</td>
+        <td>{{.Level}}</td>
+        <td>{{.Area}}</td>
+        <td>{{.Addr}}</td>
+        <td>{{.Block}}</td>
+        <td>{{.Type}}</td>
+        <td>{{.Bit}}</td>
+        <td>{{.InvertBit}}</td>
+    </tr>
+    {{end}}
+    </tbody>
+</table>
+
+<div style="display: flex; justify-content:  space-evenly;">
+    <form action="/index" method="post" class="center" id="previousPageForm">
+        <input type="hidden" name="query" value="{{ .UnitGuid }}">
+        <input type="hidden" name="page" id="page" value="{{add  .PageN -1 .Total .PageSize }}">
+        <input type="submit" value="previous" >
+    </form>
+
+
+    <form action="/index" method="post" class="center" id="nextPageForm">
+        <input type="hidden" name="query" value="{{ .UnitGuid }}">
+        <input type="hidden" name="page" id="page" value="{{add  .PageN 1 .Total .PageSize }}">
+        <input type="submit" value="Next" >
+    </form>
+</div>
+{{else}}
+
+{{if .UnitGuid}}
+По запросу "{{.UnitGuid}}" записи не найдены
+{{else}}
+Введите Unit Guid
+{{end}}
+
+{{end}}
+
+</body>
+</html>

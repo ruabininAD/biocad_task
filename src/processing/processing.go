@@ -1,7 +1,7 @@
 package processing
 
 import (
-	"biocadGo/db"
+	"biocadGo/db/dbAbstract"
 	"biocadGo/src/message"
 	"encoding/csv"
 	"fmt"
@@ -14,7 +14,7 @@ import (
 
 // Retrieves the file paths from "unprocessing" channel
 // for each file: parses the file, the data is sent to the database, marks the file as processed,
-func FilesProcessing(unProcessing chan string, wg *sync.WaitGroup, db db.Database) {
+func FilesProcessing(unProcessing chan string, wg *sync.WaitGroup, db dbAbstract.Database) {
 	defer wg.Done()
 
 	for filePath := range unProcessing {
@@ -25,7 +25,9 @@ func FilesProcessing(unProcessing chan string, wg *sync.WaitGroup, db db.Databas
 		if err != nil {
 			unProcessFileName(filePath)
 		}
+		//fixme
 
+		//fmt.Println(messages)
 		err = db.AddFile(messages)
 		if err != nil {
 			unProcessFileName(filePath)
@@ -65,6 +67,10 @@ func parseFile(filePath string) ([]message.Message, error) {
 		// Пропускаем заголовок, если он есть
 		if strings.HasPrefix(line[0], "ID") {
 			continue
+		}
+
+		for i, _ := range line {
+			line[i] = strings.Trim(line[i], " ")
 		}
 
 		level, bit, invertBit, err = transformDataType(line[8], line[13], line[14])

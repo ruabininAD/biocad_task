@@ -2,10 +2,11 @@ package main
 
 import (
 	"biocadGo/config"
-	"biocadGo/db"
 	"biocadGo/db/DBImplementation"
+	"biocadGo/db/dbAbstract"
 	"biocadGo/src/dir"
 	"biocadGo/src/processing"
+	"biocadGo/src/webServer/htmlServer"
 	"flag"
 	"github.com/spf13/viper"
 	"sync"
@@ -13,7 +14,7 @@ import (
 
 func main() {
 	var wg sync.WaitGroup
-	var db db.Database
+	var db dbAbstract.Database
 	unProcessed := make(chan string, 5)
 
 	flags := parseFlags()
@@ -27,6 +28,10 @@ func main() {
 
 	wg.Add(1)
 	go processing.FilesProcessing(unProcessed, &wg, db)
+
+	wg.Add(1)
+	server := htmlServer.Server{}
+	go server.Init(viper.GetString("web_server_port"), &wg, db)
 
 	wg.Wait()
 }
@@ -43,12 +48,12 @@ func parseFlags() map[string]string {
 	return flags
 }
 
-func dbInit(host, port, DBImplement string) (dataBase db.Database) {
+func dbInit(host, port, DBImplement string) (dataBase dbAbstract.Database) {
 	switch DBImplement {
 	case "mongodb":
 		dataBase = &DBImplementation.MongoDB{}
 	default:
-		panic("не верный аргумент типа базы данных")
+		panic("неверный аргумент типа базы данных")
 	}
 	dataBase.Init(host, port)
 	return dataBase

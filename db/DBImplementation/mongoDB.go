@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
 	"log"
 )
 
@@ -84,6 +85,30 @@ func (db *MongoDB) AddFile(messages []message.Message) error {
 	return nil
 }
 
-func (db *MongoDB) Get(unitGuid string) {
+func (db *MongoDB) GetById(UnitGUID string, pageNumber, pageSize int) (data []message.Message, total int64) {
 
+	// Получаем общее количество документов для данного UnitGUID (для дальнейшей пагинации)
+	total, err := db.collection.CountDocuments(context.Background(), bson.M{"unitguid": UnitGUID})
+	if err != nil {
+		fmt.Println(err)
+		return nil, total
+	}
+
+	// Вычисляем смещение (skip) и лимит (limit) для пагинации
+	offset := int64((pageNumber - 1) * pageSize)
+
+	cur, err := db.collection.Find(context.Background(), bson.M{"unitguid": UnitGUID}, options.Find().
+		SetSkip(offset).
+		SetLimit(int64(pageSize)))
+	if err != nil {
+		return nil, 0
+	}
+
+	defer cur.Close(context.Background())
+
+	if err = cur.All(context.Background(), &data); err != nil {
+		log.Fatal(err) //fixme
+	}
+
+	return data, total
 }
