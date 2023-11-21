@@ -1,0 +1,11 @@
+DBPassword: 123
+DBLogin: 123
+host: "mongodb://localhost"
+port: ":27017"
+path: "C:/Users/ryabi/Downloads/biocad_file"
+frequency_of_dir_checks: 5 #sec fixme ____
+
+DBImplement: "mongodb"
+database: "dev"
+collection: "trainers"
+log: "log"
